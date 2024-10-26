@@ -297,7 +297,8 @@ input, textarea {
     position: relative;
     z-index: 2;
     padding: 18rem 2rem;
-    max-width: 1200px;
+    max-width: none;
+    width: 100%;
     margin: 0 auto;
     background-color: rgba(0, 0, 0, 0.8); /* 背景色を変更 */
     text-align: center; /* テキストを中央揃えに */
