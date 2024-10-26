@@ -352,7 +352,7 @@ input, textarea {
 #services {
     position: relative;
     z-index: 2;
-    padding: 4rem 2rem;
+    padding: 12rem 2rem;
     background-color: #000;
     border-top: 1px solid red;
 }
@@ -449,7 +449,7 @@ input, textarea {
 #company {
     position: relative;
     z-index: 2;
-    padding: 4rem 2rem;
+    padding: 12rem 2rem;
     text-align: center;
     background-size: cover;
     background-position: center;
@@ -477,7 +477,7 @@ input, textarea {
 
 .company-info {
     width: 100%;
-    max-width: 800px;
+    max-width: 640px;
     margin: 0 auto;
     border-collapse: separate;
     border-spacing: 0 15px;
@@ -489,25 +489,27 @@ input, textarea {
     text-align: center;
     vertical-align: top;
     padding: 10px;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
 .company-info th {
     color: white;
     width: 30%;
     font-weight: normal;
-    border-right: 2px solid rgb(139, 0, 0);
+    border-right: 2px solid rgb(226, 3, 3);
+    font-weight: bold;
 }
 
 .company-info td {
-    color: #ffffff;
+    color: white;
     width: 100%;
 }
 
 #contact {
     position: relative;
     z-index: 2;
-    padding: 4rem 2rem;
+    padding: 12rem 2rem;
     text-align: center; /* 追加: テキストを中央揃えに */
 }
 
@@ -522,6 +524,19 @@ input, textarea {
     flex-direction: column;
     max-width: 500px;
     margin: 0 auto; /* 追加: フォームを中央に配置 */
+}
+
+#contact input, #contact textarea {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid white;
+    color: #fff;
+}
+
+#contact textarea {
+    height: 150px; /* この行を追加：テキストエリアの高さを設定 */
+    resize: vertical; /* この行を追加：垂直方向のリサイズを許可 */
 }
 
 input, textarea {
@@ -544,7 +559,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #00c0cc;
+    background-color: red;
 }
 
 footer {
