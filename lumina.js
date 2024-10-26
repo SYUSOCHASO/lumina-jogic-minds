@@ -312,10 +312,10 @@ function initServicesNeuralNetwork() {
     function growBranch(branch, progress, canvasHeight) {
         const targetLength = branch.maxLength * progress;
         if (branch.length < targetLength) {
-            branch.length = Math.min(branch.length + 15, targetLength);
+            branch.length = Math.min(branch.length + 12, targetLength);
             branch.growing = true;
         } else if (branch.length > targetLength) {
-            branch.length = Math.max(branch.length - 15, targetLength);
+            branch.length = Math.max(branch.length - 12, targetLength);
             branch.growing = false;
         }
 
