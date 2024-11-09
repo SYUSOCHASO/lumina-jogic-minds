@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     const serviceItems = document.querySelectorAll('.service-item');
     
+    // 背景アニメーションとヘッダーを即座に初期化
+    startParticleAnimation();
+    initAIAnimation();
+    header.classList.add('visible');
+    initArrowAnimation();
+
     // 初期アニメーション
     texts.forEach((text, index) => {
         setTimeout(() => {
@@ -32,9 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             setTimeout(() => {
                 initialAnimation.style.display = 'none';
-                startParticleAnimation();
-                header.classList.add('visible');
-                initArrowAnimation();
             }, 1000);
         }, 1000);
     }, 2500);
@@ -59,6 +62,141 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(item);
     });
 });
+
+
+function initAIAnimation() {
+    const canvas = document.getElementById('ai-animation');
+    const ctx = canvas.getContext('2d');
+    
+    // キャンバスサイズの設定
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // ニューロンのクラス
+    class Neuron {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 4 + 2;
+            this.connections = [];
+            this.speed = {
+                x: (Math.random() - 0.5) * 2,
+                y: (Math.random() - 0.5) * 2
+            };
+            this.pulsePhase = Math.random() * Math.PI * 2;
+        }
+
+        update() {
+            this.x += this.speed.x;
+            this.y += this.speed.y;
+            
+            // 画面端での反射
+            if (this.x < 0 || this.x > canvas.width) this.speed.x *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.speed.y *= -1;
+            
+            this.pulsePhase += 0.05;
+        }
+
+        draw() {
+            const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size * (1 + pulse * 0.5), 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.6 + pulse * 0.4})`;
+            ctx.fill();
+        }
+    }
+
+    // ニューロン間の接続を描画する関数
+    function drawConnections(neurons) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1;
+
+        for (let i = 0; i < neurons.length; i++) {
+            for (let j = i + 1; j < neurons.length; j++) {
+                const dx = neurons[i].x - neurons[j].x;
+                const dy = neurons[i].y - neurons[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 200) {
+                    const opacity = (1 - distance / 200) * 0.5;
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.moveTo(neurons[i].x, neurons[i].y);
+                    ctx.lineTo(neurons[j].x, neurons[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    // データフローのクラス
+    class DataFlow {
+        constructor(startX, startY, endX, endY) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.progress = 0;
+            this.speed = Math.random() * 0.02 + 0.01;
+            this.size = Math.random() * 2 + 1;
+        }
+
+        update() {
+            this.progress += this.speed;
+            return this.progress < 1;
+        }
+
+        draw() {
+            const x = this.startX + (this.endX - this.startX) * this.progress;
+            const y = this.startY + (this.endY - this.startY) * this.progress;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${1 - this.progress})`;
+            ctx.fill();
+        }
+    }
+
+    // ニューロンとデータフローの初期化
+    const neurons = Array.from({ length: 50 }, () => new Neuron());
+    let dataFlows = [];
+
+    // アニメーションループ
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // ニューロンの更新と描画
+        neurons.forEach(neuron => {
+            neuron.update();
+            neuron.draw();
+        });
+
+        // 接続の描画
+        drawConnections(neurons);
+
+        // 新しいデータフローの生成
+        if (Math.random() < 0.1) {
+            const startNeuron = neurons[Math.floor(Math.random() * neurons.length)];
+            const endNeuron = neurons[Math.floor(Math.random() * neurons.length)];
+            dataFlows.push(new DataFlow(startNeuron.x, startNeuron.y, endNeuron.x, endNeuron.y));
+        }
+
+        // データフローの更新と描画
+        dataFlows = dataFlows.filter(flow => {
+            const active = flow.update();
+            if (active) flow.draw();
+            return active;
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+}
 
 function startParticleAnimation() {
     const scene = new THREE.Scene();
@@ -92,10 +230,11 @@ function startParticleAnimation() {
             Math.random() * 400 - 100,
             Math.random() * 2000 - 1000
         );
+        // 速度をさらに低下（0.02に変更）
         particle.velocity = new THREE.Vector3(
-            Math.random() * 2 - 1,
-            (Math.random() * 2 - 1) * 0.3,
-            Math.random() * 2 - 1
+            (Math.random() * 2 - 1) * 0.005, // 0.1から0.02に変更
+            (Math.random() * 2 - 1) * 0.005, // 0.1から0.02に変更
+            (Math.random() * 2 - 1) * 0.005  // 0.1から0.02に変更
         );
         particles.push(particle);
         particleSizes.push(Math.random() * 15 + 10);
@@ -205,76 +344,68 @@ function initNeuralNetwork() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const branches = [];
-    const maxDepth = 9;
+    const waves = [];
+    const maxWaves = 15;
 
-    function createBranch(x, y, angle, depth) {
+    function createWave() {
         return {
-            x: x,
-            y: y,
-            angle: angle,
-            depth: depth,
-            length: 0,
-            maxLength: Math.random() * 60 + 60,
-            growing: true,
-            children: []
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 0,
+            maxRadius: Math.min(canvas.width, canvas.height) * 1.5,
+            opacity: 1,
+            color: `hsl(${Math.random() * 60 + 200}, 70%, 50%)`, // 青～シアン系の色
+            speed: Math.random() * 2 + 1
         };
     }
 
-    function growBranch(branch, progress, canvasHeight) {
-        const targetLength = branch.maxLength * progress;
-        if (branch.length < targetLength) {
-            branch.length = Math.min(branch.length + 5, targetLength);
-            branch.growing = true;
-        } else if (branch.length > targetLength) {
-            branch.length = Math.max(branch.length - 5, targetLength);
-            branch.growing = false;
-        }
+    function drawWave(wave, progress) {
+        const targetRadius = wave.maxRadius * progress;
+        wave.radius = Math.min(wave.radius + wave.speed, targetRadius);
+        wave.opacity = Math.max(0, 1 - (wave.radius / wave.maxRadius));
 
-        if (branch.growing && branch.length >= branch.maxLength && branch.depth < maxDepth) {
-            if (branch.children.length === 0) {
-                const numChildren = Math.floor(Math.random() * 2) + 1;
-                for (let i = 0; i < numChildren; i++) {
-                    const newAngle = branch.angle + (Math.random() - 0.5) * Math.PI / 3;
-                    const childBranch = createBranch(
-                        branch.x + Math.cos(branch.angle) * branch.length,
-                        branch.y + Math.sin(branch.angle) * branch.length,
-                        newAngle,
-                        branch.depth + 1
-                    );
-                    branch.children.push(childBranch);
-                    branches.push(childBranch);
-                }
-            }
-        }
-
-        // 最下層の枝を下端まで伸ばす
-        if (branch.depth === maxDepth - 1 && branch.y + branch.length * Math.sin(branch.angle) < canvasHeight) {
-            branch.maxLength = (canvasHeight - branch.y) / Math.sin(branch.angle);
-        }
-
-        branch.children.forEach(child => growBranch(child, progress, canvasHeight));
-    }
-
-    function drawBranch(branch) {
         ctx.beginPath();
-        ctx.moveTo(branch.x, branch.y);
-        const endX = branch.x + Math.cos(branch.angle) * branch.length;
-        const endY = branch.y + Math.sin(branch.angle) * branch.length;
-        ctx.lineTo(endX, endY);
-        ctx.strokeStyle = `rgba(255, 255, 255, ${1 - branch.depth / maxDepth})`;
-        ctx.lineWidth = maxDepth - branch.depth + 1;
+        ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = wave.color.replace(')', `, ${wave.opacity})`);
+        ctx.lineWidth = 2;
         ctx.stroke();
-        branch.children.forEach(drawBranch);
-    }
 
-    const rootBranch = createBranch(canvas.width / 2, 0, Math.PI / 2, 0);
-    branches.push(rootBranch);
+        // エネルギー線の追加
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 / 8) * i;
+            const length = wave.radius * 0.2;
+            
+            ctx.beginPath();
+            ctx.moveTo(
+                wave.x + Math.cos(angle) * (wave.radius - length),
+                wave.y + Math.sin(angle) * (wave.radius - length)
+            );
+            ctx.lineTo(
+                wave.x + Math.cos(angle) * wave.radius,
+                wave.y + Math.sin(angle) * wave.radius
+            );
+            ctx.strokeStyle = wave.color.replace(')', `, ${wave.opacity * 0.5})`);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    }
 
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        growBranch(rootBranch, animationProgress, canvas.height);
-        drawBranch(rootBranch);
+
+        // 新しい波を追加
+        if (waves.length < maxWaves && Math.random() < 0.05) {
+            waves.push(createWave());
+        }
+
+        // 既存の波を更新・描画
+        waves.forEach((wave, index) => {
+            drawWave(wave, animationProgress);
+            if (wave.radius >= wave.maxRadius) {
+                waves.splice(index, 1);
+            }
+        });
+
         animationFrameId = requestAnimationFrame(animate);
     }
 
@@ -434,7 +565,32 @@ window.addEventListener('scroll', () => {
     }
 });
 
+function initAboutAnimations() {
+    const aboutSection = document.querySelector('#about');
+    const title = document.querySelector('.glitch-title');
+    const slogan = document.querySelector('.split-text');
+    const description = document.querySelector('.cyber-text');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                title.classList.add('animate-glitch');
+                slogan.classList.add('animate-split');
+                description.classList.add('animate-cyber');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.3
+    });
+
+    observer.observe(aboutSection);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     updateNeuralNetwork();
     updateServicesNeuralNetwork();
+    initAIAnimation();
+    console.log('DOM Content Loaded'); // デバッグ用
+    initAboutAnimations();
 });
