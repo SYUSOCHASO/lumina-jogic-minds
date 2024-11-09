@@ -19,21 +19,17 @@ body.no-scroll {
 
 header {
     background-color: rgb(0, 0, 0);
-    padding: 1rem 0;
     position: fixed;
     width: 100%;
+    height: 110px;  /* ヘッダーの高さを固定 */
+    overflow: hidden;  /* はみ出た部分を隠す */
     top: 0;
-    z-index: 1000;
+    z-index: 999;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    opacity: 0; /* 透明度を0に設定 */
-    transition: opacity 0.5s ease; /* アニメーション効果を追加 */
+    opacity: 1;
     border-bottom: 2px solid red;
-}
-
-header.visible {
-    opacity: 1; /* 可視状態の透明度 */
 }
 
 main {
@@ -122,6 +118,8 @@ input, textarea {
     color: #fff;
 }
 
+
+
 #home {
     height: 100vh;   
     display: flex;
@@ -172,6 +170,7 @@ input, textarea {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    pointer-events: none; /* 追加：背面の要素とのインタラクションを可能にする */
 }
 
 #animation-canvas {
@@ -181,6 +180,16 @@ input, textarea {
     width: 100%;
     height: 100vh;
     z-index: 1000;
+}
+
+#ai-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
 }
 
 .text-container {
@@ -285,12 +294,16 @@ input, textarea {
 
 .logo {
     margin-left: 8rem;
+    height: 135px;  /* ロゴコンテナの高さをヘッダーに合わせる */
+    display: flex;
+    align-items: center;  /* 垂直方向の中央揃え */
 }
 
 .logo img {
-    height: 90px;
+    height: 135px;
     width: auto;
     vertical-align: middle;
+    margin-top: 15px;  /* 必要に応じて調整して、ロゴの見える部分を制御 */
 }
 
 #about {
@@ -339,6 +352,143 @@ input, textarea {
     max-width: 800px; /* 最大幅を設定 */
     margin: 0 auto; /* 中央揃え */
     line-height: 4rem; /* 行間を広げる */
+}
+
+/* グリッチエフェクト付きタイトル */
+.glitch-title {
+    opacity: 0;
+    position: relative;
+    color: white; /* 色を明示的に指定 */
+}
+
+.glitch-title.animate-glitch {
+    opacity: 1;
+    animation: glitchIn 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.glitch-title::before,
+.glitch-title::after {
+    content: 'ABOUT';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    clip: rect(0, 900px, 0, 0);
+}
+
+/* スローガンのスプリットテキストエフェクト */
+.split-text {
+    opacity: 0;
+    transform: translateY(20px);
+    position: relative;
+    color: white;
+}
+
+.split-text.animate-split {
+    opacity: 1;
+    animation: fadeInUp 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards 0.5s; /* 時間を1.5sに、ディレイを0.5s追加 */
+}
+
+/* サイバーテキストエフェクト */
+.cyber-text {
+    opacity: 0;
+    color: white;
+}
+
+.cyber-text.animate-cyber {
+    opacity: 1;
+}
+
+.text-block {
+    display: inline-block;
+    opacity: 0;
+    transform: translateX(-20px);
+    filter: blur(10px);
+}
+
+.cyber-text.animate-cyber .text-block {
+    animation: cyberReveal 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* 個別のディレイ設定 */
+.cyber-text.animate-cyber .text-block:nth-child(1) { animation-delay: 1.0s; }
+.cyber-text.animate-cyber .text-block:nth-child(2) { animation-delay: 1.5s; }
+.cyber-text.animate-cyber .text-block:nth-child(3) { animation-delay: 2.0s; }
+.cyber-text.animate-cyber .text-block:nth-child(4) { animation-delay: 2.5s; }
+.cyber-text.animate-cyber .text-block:nth-child(5) { animation-delay: 3.0s; }
+
+@keyframes glitchIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glitch-anim {
+    0% {
+        clip: rect(44px, 9999px, 98px, 0);
+    }
+    100% {
+        clip: rect(32px, 9999px, 15px, 0);
+    }
+}
+
+@keyframes glitch-anim2 {
+    0% {
+        clip: rect(32px, 9999px, 15px, 0);
+    }
+    100% {
+        clip: rect(44px, 9999px, 98px, 0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes splitReveal {
+    0% {
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+    100% {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+}
+
+@keyframes cyberReveal {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px);
+        filter: blur(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 #services-neural-network {
